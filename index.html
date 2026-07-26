@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<title>NFT Gifts — Кликер</title>
+<link rel="stylesheet" href="style.css">
+<!-- Yandex Games SDK -->
+<script async src="https://sdk.games.s3.yandex.net/sdk.js" onload="initSDK()"></script>
+</head>
+<body>
+
+<div class="game-wrap" id="gameWrap">
+  <div class="top-bar">
+    <div class="logo"><span>🎁</span> NFT Gifts</div>
+    <div class="coin-display"><span style="color:var(--gold);font-weight:800">$</span><span id="coinDisplay">0</span></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="levelup-overlay" id="levelUpOverlay">
+    <div class="levelup-card">
+      <div class="levelup-img"><img id="levelUpImg" src="" alt="gift"></div>
+      <div class="levelup-title" id="levelUpTitle">Новый подарок!</div>
+      <div class="levelup-sub" id="levelUpSub">Ты открыл новый NFT</div>
+      <div class="levelup-reward" id="levelUpReward">+500 монет</div>
+      <button class="levelup-btn" onclick="closeLevelUp()" data-i18n="cool">Круто!</button>
+    </div>
+  </div>
+
+  <div class="content" id="contentArea">
+    <div class="tab active" id="tab-home">
+      <div class="click-zone">
+        <div class="gift-stage" id="giftStage">
+          <div class="gift-glow" id="giftGlow"></div>
+          <div class="gift-box" id="giftBox"><img id="giftImg" src="" alt="gift"></div>
+        </div>
+        <div class="progress-block">
+          <div class="progress-header">
+            <span class="gift-name" id="giftName">Обычный подарок</span>
+            <span class="gift-level" id="giftLevel">Уровень 1 / 61</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+          <div class="progress-text"><span id="currentClicks">0</span> / <span id="targetClicks">10</span> кликов</div>
+        </div>
+        <div class="bonus-row" id="bonusRow">
+          <div class="bonus-tag" id="tagPower">Сила: x1</div>
+          <div class="bonus-tag" id="tagAuto">Авто: выкл</div>
+          <div class="bonus-tag" id="tagLuck">Удача: 0%</div>
+        </div>
+        <div class="potions-title" data-i18n="potions_title">⚗️ Зелья</div>
+        <div class="potions-grid">
+          <div class="potion" id="potLuck" onclick="usePotion('luck')"><div class="potion-icon">🍀</div><div class="potion-name" data-i18n="luck">Удача</div><div class="potion-cost">15 💎</div></div>
+          <div class="potion" id="potPower" onclick="usePotion('power')"><div class="potion-icon">⚡</div><div class="potion-name" data-i18n="power">Сила</div><div class="potion-cost">15 💎</div></div>
+          <div class="potion" id="potAuto" onclick="usePotion('auto')"><div class="potion-icon">🤖</div><div class="potion-name" data-i18n="auto">Авто</div><div class="potion-cost">15 💎</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab" id="tab-profile">
+      <div class="profile-card">
+        <div class="profile-avatar" id="profileAvatar">И</div>
+        <div class="profile-name" id="profileName">Игрок</div>
+        <div class="profile-rank" id="profileRank">Новичок коллекционер</div>
+        <button class="promo-btn" onclick="openPromo()">
+          <span class="promo-icon">🎫</span>
+          <span data-i18n="promo_btn">Промокоды</span>
+        </button>
+        <div class="stats-grid">
+          <div class="stat"><div class="stat-value" id="statClicks">0</div><div class="stat-label" data-i18n="stat_clicks">Всего кликов</div></div>
+          <div class="stat"><div class="stat-value" id="statCoins">0</div><div class="stat-label" data-i18n="stat_coins">Монет</div></div>
+          <div class="stat"><div class="stat-value" id="statGifts">0</div><div class="stat-label" data-i18n="stat_nft">NFT собрано</div></div>
+          <div class="stat"><div class="stat-value" id="statLevel">1</div><div class="stat-label" data-i18n="stat_level">Уровень</div></div>
+        </div>
+      </div>
+      <div class="promo-modal" id="promoModal" style="display:none;">
+        <div class="promo-card">
+          <div class="promo-close" onclick="closePromo()">✕</div>
+          <div class="promo-title">🎫 <span data-i18n="promo_title">Промокод</span></div>
+          <input type="text" id="promoInput" class="promo-input" data-i18n-placeholder="promo_placeholder" placeholder="Введите код...">
+          <button class="promo-submit" onclick="usePromo()" data-i18n="activate">Активировать</button>
+          <div class="promo-hint" data-i18n="promo_hint">Введите секретный код</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab" id="tab-upgrades"><div class="upgrades-list" id="upgradesList"></div></div>
+    <div class="tab" id="tab-leaders"><div class="leaders-list" id="leadersList"></div></div>
+    <div class="tab" id="tab-collection"><div class="collection-grid" id="collectionGrid"></div></div>
+    <div class="tab" id="tab-quests">
+      <div class="quests-container" id="questsContainer">
+        <div class="quests-header">
+          <span data-i18n="quests_title">📋 Квесты</span>
+          <span class="quests-timer" id="questsTimer">Обновление через 3ч</span>
+        </div>
+        <div class="quests-list" id="questsList"></div>
+      </div>
+    </div>
+    <div class="tab" id="tab-settings">
+      <div class="settings-container">
+        <div class="settings-title" data-i18n="settings_title">⚙️ Настройки</div>
+        <div class="settings-section">
+          <div class="settings-label" data-i18n="language">🌐 Язык</div>
+          <div class="lang-buttons">
+            <button class="lang-btn active" onclick="setLanguage('ru')">🇷🇺 Русский</button>
+            <button class="lang-btn" onclick="setLanguage('by')">🇧🇾 Беларуская</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('home',this)"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span data-i18n="nav_home">Главная</span></button>
+    <button class="nav-btn" onclick="switchTab('profile',this)"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span data-i18n="nav_profile">Профиль</span></button>
+    <button class="nav-btn" onclick="switchTab('upgrades',this)"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg><span data-i18n="nav_upgrades">Улучшения</span></button>
+    <button class="nav-btn" onclick="switchTab('leaders',this)"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg><span data-i18n="nav_leaders">Лидеры</span></button>
+    <button class="nav-btn" onclick="switchTab('collection',this)"><svg viewBox="0 0 24 24"><path d="M4 6h4v2H4zm0 5h4v2H4zm0 5h4v2H4zm6-10h10v2H10zm0 5h10v2H10zm0 5h10v2H10z"/></svg><span data-i18n="nav_collection">Коллекция</span></button>
+    <button class="nav-btn" onclick="switchTab('quests',this)"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span data-i18n="nav_quests">Квесты</span></button>
+    <button class="nav-btn" onclick="switchTab('settings',this)"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg><span data-i18n="nav_settings">Настройки</span></button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
